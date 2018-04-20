@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/madsilver/golang-api-example/pkg/handler"
+	"github.com/madsilver/golang-api-example/pkg/routes"
 )
 
 func main() {
@@ -16,19 +15,16 @@ func main() {
 	r := mux.NewRouter()
 
 	// Mock Data
-	handler.MockBook()
+	routes.MockBook()
 
 	// Route Handlers
-	r.HandleFunc("/api/books", handler.GetBooks).Methods("GET")
-	r.HandleFunc("/api/books/{id}", handler.GetBook).Methods("GET")
-	r.HandleFunc("/api/books", handler.CreateBook).Methods("POST")
-	r.HandleFunc("/api/books/{id}", handler.UpdateBook).Methods("PUT")
-	r.HandleFunc("/api/books/{id}", handler.DeleteBook).Methods("DELETE")
+	r.Handle("/api/books", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(routes.GetBooks))).Methods("GET")
+	r.Handle("/api/books/{id}", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(routes.GetBook))).Methods("GET")
+	r.Handle("/api/books", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(routes.CreateBook))).Methods("POST")
+	r.Handle("/api/books/{id}", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(routes.UpdateBook))).Methods("PUT")
+	r.Handle("/api/books/{id}", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(routes.DeleteBook))).Methods("DELETE")
 
-	port := 8000
-	if portStr := os.Getenv("PORT"); portStr != "" {
-		port, _ = strconv.Atoi(portStr)
-	}
+	port := ":8000"
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), r))
+	log.Fatal(http.ListenAndServe(port, handlers.CORS()(r)))
 }
