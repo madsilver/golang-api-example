@@ -54,4 +54,4 @@ fmt:
 clean:
 	@rm -fR ./build/ ./vendor/
 
-.PHONY: linux darwin windows test vet fmt clean
+.PHONY: all depend linux darwin windows test vet fmt clean
